@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>عجلة الحظ - ماذا نطبخ اليوم؟</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Cairo', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #f093fb, #f5576c);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            color: #333;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            background-color: rgba(255, 255, 255, 0.97);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        h1 {
+            color: #d45a2c;
+            margin-bottom: 10px;
+            font-size: 2.6rem;
+            text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.15);
+        }
+
+        .subtitle {
+            color: #555;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
+        }
+
+        .wheel-container {
+            position: relative;
+            width: 100%;
+            max-width: 500px;
+            height: 0;
+            padding-bottom: 500px;
+            margin: 30px auto 10px;
+            border-radius: 50%;
+            overflow: hidden;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.25);
+            border: 8px solid #fff;
+        }
+
+        .wheel {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: conic-gradient(
+                #e74c3c 0% 8.33%,
+                #f39c12 8.33% 16.66%,
+                #f1c40f 16.66% 24.99%,
+                #27ae60 24.99% 33.32%,
+                #16a085 33.32% 41.65%,
+                #2980b9 41.65% 49.98%,
+                #8e44ad 49.98% 58.31%,
+                #1abc9c 58.31% 66.64%,
+                #3498db 66.64% 74.97%,
+                #d35400 74.97% 83.3%,
+                #c0392b 83.3% 91.63%,
+                #7f8c8d 91.63% 100%
+            );
+            transition: transform 5s cubic-bezier(0.17, 0.67, 0.12, 0.99);
+            transform: rotate(0deg);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .wheel::after {
+            content: "";
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            background: linear-gradient(#fff, #f8f9fa);
+            border-radius: 50%;
+            z-index: 10;
+            box-shadow: 0 0 0 5px #f8f9fa, 0 0 0 10px #e9ecef;
+        }
+
+        /* سهم الإشارة أسفل العجلة */
+        .arrow-container {
+            position: absolute;
+            bottom: -30px;
+            left: 50%;
+            transform: translateX(-50%);
+            z-index: 100;
+            width: 60px;
+            height: 60px;
+            pointer-events: none;
+            filter: drop-shadow(0 -5px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        .arrow {
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(0deg, #ffeb3b 0%, #f44336 100%);
+            clip-path: polygon(50% 100%, 0% 0%, 50% 20%, 100% 0%);
+            border: 3px solid #d50000;
+            border-top: none;
+            transform: translateY(50%);
+            position: relative;
+        }
+
+        .arrow::before {
+            content: "";
+            position: absolute;
+            bottom: 40%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 12px;
+            height: 12px;
+            background-color: #ffd600;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .arrow::after {
+            content: "";
+            position: absolute;
+            top: -5px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 10px;
+            background-color: rgba(0, 0, 0, 0.2);
+            border-radius: 50%;
+            filter: blur(1px);
+        }
+
+        .slices {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+        }
+
+        .slice {
+            position: absolute;
+            width: 50%;
+            height: 50%;
+            transform-origin: bottom right;
+            clip-path: polygon(0 0, 100% 0, 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 70px;
+        }
+
+        .slice span {
+            color: white;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.8);
+            transform: rotate(40deg);
+            font-size: 1rem;
+            letter-spacing: 0.5px;
+            text-align: left;
+            max-width: 180px;
+        }
+
+        .btn-spin {
+            background: linear-gradient(135deg, #e74c3c, #d45a2c);
+            color: white;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.3rem;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(231, 76, 60, 0.4);
+            font-weight: 600;
+            margin: 30px 0 10px;
+            min-width: 220px;
+        }
+
+        .btn-spin:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 25px rgba(231, 76, 60, 0.6);
+        }
+
+        .btn-spin:active {
+            transform: translateY(-2px);
+        }
+
+        .btn-spin:disabled {
+            opacity: 0.7;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .result {
+            margin-top: 20px;
+            min-height: 70px;
+            opacity: 0;
+            transition: all 0.6s ease;
+        }
+
+        .result.show {
+            opacity: 1;
+        }
+
+        .result-message {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: #4a5568;
+            margin-bottom: 10px;
+        }
+
+        .result-dish {
+            font-size: 2.2rem;
+            font-weight: 700;
+            color: #d45a2c;
+            background: linear-gradient(135deg, #e74c3c, #d45a2c);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            padding: 10px 25px;
+            display: inline-block;
+            border-radius: 12px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+                border-radius: 16px;
+            }
+            
+            h1 {
+                font-size: 2.2rem;
+            }
+            
+            .wheel-container {
+                max-width: 320px;
+                padding-bottom: 320px;
+                margin: 20px auto 10px;
+            }
+            
+            .arrow-container {
+                width: 45px;
+                height: 45px;
+                bottom: -25px;
+            }
+            
+            .btn-spin {
+                padding: 14px 35px;
+                font-size: 1.15rem;
+            }
+            
+            .slice span {
+                font-size: 0.85rem;
+                max-width: 140px;
+            }
+            
+            .result-message {
+                font-size: 1.25rem;
+            }
+            
+            .result-dish {
+                font-size: 1.6rem;
+            }
+        }
+
+        @keyframes popIn {
+            0% {
+                transform: scale(0.8);
+                opacity: 0;
+            }
+            70% {
+                transform: scale(1.1);
+            }
+            100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            backdrop-filter: blur(3px);
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 30px;
+            border-radius: 18px;
+            max-width: 90%;
+            width: 400px;
+            text-align: center;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            animation: popIn 0.4s ease forwards;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 26px;
+            cursor: pointer;
+            color: #aaa;
+            transition: color 0.3s ease;
+            z-index: 10;
+        }
+
+        .close-modal:hover {
+            color: #333;
+        }
+
+        .dish-image {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+            margin: 25px auto;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 45px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            border: 5px solid white;
+        }
+
+        .modal-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: #d45a2c;
+            margin-bottom: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>عجلة الحظ 🎡</h1>
+        <p class="subtitle">إضغط على الزر لتدوير العجلة واكتشاف ماذا سنطبخ اليوم!</p>
+        
+        <div class="wheel-container">
+            <!-- العجلة -->
+            <div class="wheel" id="wheel">
+                <div class="slices" id="slices"></div>
+            </div>
+            
+            <!-- السهم (المؤشر) أسفل العجلة فقط -->
+            <div class="arrow-container">
+                <div class="arrow"></div>
+            </div>
+        </div>
+        
+        <button class="btn-spin" id="spin-btn">دور العجلة</button>
+        
+        <div class="result" id="result">
+            <div class="result-message">اليوم ستطبخ:</div>
+            <div class="result-dish" id="result-dish"></div>
+        </div>
+    </div>
+
+    <!-- النافذة المنبثقة -->
+    <div class="modal" id="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="close-modal">&times;</span>
+            <h2 class="modal-title" id="modal-title"></h2>
+            <div class="dish-image" id="modal-image"></div>
+            <p>بالهنا والشفا! استمتع بوجبتك اللذيذة.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // القائمة بعد حذف寿司 (Sushi)
+            const dishes = [
+                "🍲 شربة فريك",
+                "🥩 مقرونة بالمرق",
+                "🥖 شطيرة تونسية",
+                "🥣 لبلابي",
+                "🐟 مشوي سمك",
+                "🍢 بريك",
+                "🥗 سلطة مشوية",
+                "🍗 دجاج محمّر",
+                "🍝 Pasta (مقرونة إيطالية)",
+                "🍕 Pizza",
+                "🥗 Greek Salad",
+                "🍔 Burger",
+                "🌮 Tacos",
+                "🍛 Curry",
+                "🥖 Baguette Sandwich",
+                "🍜 Ramen",  // يمكنك حذفه أيضًا إذا أردت
+                "🥩 BBQ"
+            ];
+            
+            // استخراج الأسماء والرموز
+            const dishNames = dishes.map(dish => dish.substring(dish.indexOf(' ') + 1));
+            const dishEmojis = dishes.map(dish => dish.split(' ')[0]);
+            
+            // عناصر DOM
+            const wheel = document.getElementById('wheel');
+            const slicesContainer = document.getElementById('slices');
+            const spinBtn = document.getElementById('spin-btn');
+            const result = document.getElementById('result');
+            const resultDish = document.getElementById('result-dish');
+            const modal = document.getElementById('modal');
+            const modalTitle = document.getElementById('modal-title');
+            const modalImage = document.getElementById('modal-image');
+            const closeModal = document.getElementById('close-modal');
+            
+            // إنشاء الشرائح
+            function createSlices() {
+                const sliceAngle = 360 / dishes.length;
+                dishes.forEach((dish, index) => {
+                    const slice = document.createElement('div');
+                    slice.className = 'slice';
+                    slice.style.transform = `rotate(${index * sliceAngle}deg) skew(${90 - sliceAngle}deg)`;
+                    
+                    const span = document.createElement('span');
+                    let displayText = dishNames[index];
+                    if (displayText.length > 14) {
+                        displayText = displayText.substring(0, 13) + "…";
+                    }
+                    span.textContent = displayText;
+                    slice.appendChild(span);
+                    slicesContainer.appendChild(slice);
+                });
+            }
+            
+            createSlices();
+            
+            // متغيرات الدوران
+            let currentRotation = 0;
+            let isSpinning = false;
+            
+            // تدوير العجلة
+            spinBtn.addEventListener('click', function() {
+                if (isSpinning) return;
+                
+                isSpinning = true;
+                spinBtn.disabled = true;
+                result.style.opacity = '0';
+                
+                // دورات عشوائية (4-8)
+                const extraRotation = Math.floor(Math.random() * 360);
+                const spins = 4 + Math.floor(Math.random() * 5);
+                const totalRotation = spins * 360 + extraRotation;
+                
+                // تحديد الطبق الفائز
+                const sliceAngle = 360 / dishes.length;
+                const sliceIndex = Math.floor((360 - (extraRotation % 360)) / sliceAngle) % dishes.length;
+                const winningDish = dishNames[sliceIndex];
+                const winningEmoji = dishEmojis[sliceIndex];
+                
+                // تطبيق الدوران
+                currentRotation += totalRotation;
+                wheel.style.transform = `rotate(${currentRotation}deg)`;
+                
+                // عرض النتيجة بعد الانتهاء
+                setTimeout(() => {
+                    resultDish.textContent = winningDish;
+                    result.style.opacity = '1';
+                    
+                    modalTitle.textContent = winningDish;
+                    modalImage.textContent = winningEmoji;
+                    modal.style.display = 'flex';
+                    
+                    isSpinning = false;
+                    spinBtn.disabled = false;
+                }, 5100);
+            });
+            
+            // إغلاق النافذة المنبثقة
+            closeModal.addEventListener('click', () => modal.style.display = 'none');
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) modal.style.display = 'none';
+            });
+            
+            // دعم مفتاح Escape
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') modal.style.display = 'none';
+            });
+        });
+    </script>
+</body>
+</html>
